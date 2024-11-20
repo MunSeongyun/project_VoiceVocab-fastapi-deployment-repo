@@ -1,15 +1,13 @@
-from typing import Union
-
 from fastapi import FastAPI
-
+from routers import vocabulary
+from STT import recognition
 app = FastAPI()
 
+app.include_router(vocabulary.router)
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.get('/')
+async def main():
+    recognition.hello()
+    return {
+        'message':'hello'
+    }
