@@ -4,4 +4,4 @@ pydantic
 SpeechRecognition
 pydub
 spacy
-
+python-multipart

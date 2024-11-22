@@ -1,32 +1,33 @@
 import speech_recognition as sr
 from pydub import AudioSegment
 import spacy
+from fastapi import UploadFile
+import io
+
 # 음성 인식기를 생성
 recognizer = sr.Recognizer()
-nlp = spacy.load('ja_core_news_sm')
 
-def hello():
-    
-    audio_file_path = '/app/test/japan.m4a'
-    
-    sound = AudioSegment.from_file(audio_file_path)
-    wav_file_path = '/app/test/japan.wav'
-    sound.export(wav_file_path, format='wav')
-    # 음성 파일을 로드
-    audio_file = sr.AudioFile(wav_file_path)
+async def japan(file: UploadFile):
+    return await convert(file, 'ja-JP', 'ja_core_news_sm' )
+        
+async def convert(file:UploadFile, language, spaCy_model):
+    nlp = spacy.load(spaCy_model)
 
-    with audio_file as source:
-        audio_data = recognizer.record(source)
-
-    # 음성을 텍스트로 변환
     try:
-        text = recognizer.recognize_google(audio_data, language='ja-JP')
-        #print('텍스트: ' + text)
+        audio_data = await file.read()
+        audio = AudioSegment.from_file(io.BytesIO(audio_data),'m4a')
+        wav_io = io.BytesIO()
+        audio.export(wav_io, format='wav')
+        wav_io.seek(0)
+        
+        with sr.AudioFile(wav_io) as source:
+            audio_data = recognizer.record(source)
+            
+        text = recognizer.recognize_google(audio_data, language=language)
         doc = nlp(text)
         pos = ['ADJ', 'ADV', 'NOUN', 'PROPN', 'VERB']
         words = [token.lemma_ for token in doc if token.pos_ in pos]
-        print(text)
-        print(set(words))
+        return set(words)
     except sr.UnknownValueError:
         print('음성을 인식할 수 없습니다.')
     except sr.RequestError as e:

@@ -1,16 +1,11 @@
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, UploadFile , File
+from STT import recognition
 
 router = APIRouter(prefix='/vocabulary')
 
-@router.get('/generate')
-async def generate():
-    return '''
-    프론트에서 녹음파일 업로드 → 
-    백엔드에서는 문자로 변환 및 단어 추출 후 
-    해당 스크립트는 S3버킷에 저장하고, 
-    이미 알고있는 단어 테이블에 없는 단어만 
-    추출 후 프론트에게 스크립트 이름과 함께 전달
-    '''
+@router.post('/generate')
+async def generate(file: UploadFile = File(...)):
+    return await recognition.japan(file)
 
 @router.get('/save')
 async def save():
