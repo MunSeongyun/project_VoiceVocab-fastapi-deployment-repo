@@ -1,14 +1,28 @@
 from fastapi import APIRouter, Path, UploadFile , File
+from pydantic import BaseModel
 from STT import recognition
+from typing import List
 
 router = APIRouter(prefix='/vocabulary')
 
+class SaveBody(BaseModel):
+    script: str
+    wordList: List[str]
+    knownWordList: List[str]
+
 @router.post('/generate')
 async def generate(file: UploadFile = File(...)):
-    return await recognition.japan(file)
+    word_list, script, voice_file_url = await recognition.japan(file)
+    return {
+        'message':'단어 목록을 생성했습니다.',
+        'wordList': word_list,
+        'script':script,
+        'voiceFileUrl':voice_file_url
+    }
 
-@router.get('/save')
-async def save():
+@router.post('/save')
+async def save(body: SaveBody):
+    return body
     return await '''
     받은 단어 목록 중 사용자가 선택하는 단어는 
     known_word_list, 아닌 단어는 word_list로 
