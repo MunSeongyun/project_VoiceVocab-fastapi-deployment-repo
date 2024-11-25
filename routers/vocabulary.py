@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Path, UploadFile , File
 from pydantic import BaseModel
+from sqlmodel import Session, select  
 from STT import recognition
 from typing import List
+from DB import connection, models
 
 router = APIRouter(prefix='/vocabulary')
 
@@ -12,7 +14,14 @@ class SaveBody(BaseModel):
 
 @router.post('/generate')
 async def generate(file: UploadFile = File(...)):
+    
     word_list, script, voice_file_url = await recognition.japan(file)
+    with Session(connection.engine) as session:
+        statement = select(models.AlreadyKnow).where(models.AlreadyKnow.user_id == 1)
+        alreadyKnows = session.exec(statement).all()
+    setWord = set([i.word for i in alreadyKnows])
+    word_list = word_list - setWord
+    
     return {
         'message':'단어 목록을 생성했습니다.',
         'wordList': word_list,
@@ -22,18 +31,12 @@ async def generate(file: UploadFile = File(...)):
 
 @router.post('/save')
 async def save(body: SaveBody):
-    return body
-    return await '''
-    받은 단어 목록 중 사용자가 선택하는 단어는 
-    known_word_list, 아닌 단어는 word_list로 
-    백엔드로 스크립트와 함께 전달 → 
-    백엔드에서는 known_word_list는 
-    이미아는단어테이블에 저장, word_list는 
-    해당 단어들을 번역해서 CSV 파일로 제작 후 
-    S3버킷에 업로드 후, 받은 스크립트 명과, 
-    단어장의 파일 명과 유저 명을 사용해서 
-    vocabulary_list 객체를 생성
-'''
+    with Session(connection.engine) as session:
+        for word in body.knownWordList:
+            newWord = models.AlreadyKnow(user_id=1, word=word)
+            session.add(newWord)
+        session.commit()
+    return body.wordList
 
 @router.get('/list/{user_id}')
 async def list(user_id:int = Path(title='유저의 아이디', gt=0)):

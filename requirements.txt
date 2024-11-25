@@ -6,4 +6,6 @@ pydub
 spacy
 python-multipart
 boto3
-python-dotenv
+sqlmodel
+pymysql
+cryptography
