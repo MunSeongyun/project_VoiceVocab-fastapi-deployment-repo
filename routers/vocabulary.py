@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Path, UploadFile , File
+from fastapi.background import P
 from pydantic import BaseModel
 from sqlmodel import Session, select  
 from STT import recognition
@@ -15,18 +16,20 @@ class SaveBody(BaseModel):
 @router.post('/generate')
 async def generate(file: UploadFile = File(...)):
     
-    word_list, script, voice_file_url = await recognition.japan(file)
+    voice_file_url, words, script = await recognition.japan(file)
+    
     with Session(connection.engine) as session:
         statement = select(models.AlreadyKnow).where(models.AlreadyKnow.user_id == 1)
         alreadyKnows = session.exec(statement).all()
+    
     setWord = set([i.word for i in alreadyKnows])
-    word_list = word_list - setWord
+    word_list = words - setWord
     
     return {
         'message':'단어 목록을 생성했습니다.',
         'wordList': word_list,
-        'script':script,
-        'voiceFileUrl':voice_file_url
+        'voice_file_url': voice_file_url,
+        'script': script
     }
 
 @router.post('/save')
@@ -36,7 +39,8 @@ async def save(body: SaveBody):
             newWord = models.AlreadyKnow(user_id=1, word=word)
             session.add(newWord)
         session.commit()
-    return body.wordList
+    translated = recognition.translate_word(body.wordList) 
+    return translated
 
 @router.get('/list/{user_id}')
 async def list(user_id:int = Path(title='유저의 아이디', gt=0)):

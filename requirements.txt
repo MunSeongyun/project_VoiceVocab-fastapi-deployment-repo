@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 pydantic
-SpeechRecognition
 pydub
 spacy
 python-multipart
@@ -9,3 +8,6 @@ boto3
 sqlmodel
 pymysql
 cryptography
+google-cloud-storage
+google-cloud-speech
+translate
