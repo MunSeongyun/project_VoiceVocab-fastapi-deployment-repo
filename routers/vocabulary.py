@@ -1,29 +1,13 @@
-from fastapi import APIRouter, Path, UploadFile , File
-from fastapi.background import P
-from pydantic import BaseModel
-from sqlmodel import Session, select  
-from STT import recognition
-from typing import List
-from DB import connection, models
+from fastapi import APIRouter, Body, Path, UploadFile , File
+from common import types
+from services import vocabulary_service
 
 router = APIRouter(prefix='/vocabulary')
-
-class SaveBody(BaseModel):
-    script: str
-    wordList: List[str]
-    knownWordList: List[str]
 
 @router.post('/generate')
 async def generate(file: UploadFile = File(...)):
     
-    voice_file_url, words, script = await recognition.japan(file)
-    
-    with Session(connection.engine) as session:
-        statement = select(models.AlreadyKnow).where(models.AlreadyKnow.user_id == 1)
-        alreadyKnows = session.exec(statement).all()
-    
-    setWord = set([i.word for i in alreadyKnows])
-    word_list = words - setWord
+    voice_file_url, word_list, script = await vocabulary_service.japan(file, user_id=1)
     
     return {
         'message':'단어 목록을 생성했습니다.',
@@ -33,18 +17,27 @@ async def generate(file: UploadFile = File(...)):
     }
 
 @router.post('/save')
-async def save(body: SaveBody):
-    with Session(connection.engine) as session:
-        for word in body.knownWordList:
-            newWord = models.AlreadyKnow(user_id=1, word=word)
-            session.add(newWord)
-        session.commit()
-    translated = recognition.translate_word(body.wordList) 
-    return translated
+async def save(body: types.SaveBody):
+    
+    await vocabulary_service.save(body,'남가현')
+    
+    return {
+        'message':'단어장을 저장했습니다.'
+    }
 
 @router.get('/list/{user_id}')
 async def list(user_id:int = Path(title='유저의 아이디', gt=0)):
-    return await '유저가 단어장 목록을 확인하기 위해, 전체 vacabulary_list를 반환하는 api 필요'
+    return {
+        'message':'단어장 목록을 불러왔습니다.',
+        'data': await vocabulary_service.get_list(user_id)
+    }
+
+@router.put('/list/{list_id}')
+async def update_list_name(list_id:int = Path(title='유저의 아이디', gt=0), body:types.UpdateListName = Body(title='변경하고 싶은 이름')):
+    await vocabulary_service.update_list_name(list_id=list_id, name=body.name)
+    return {
+        'message':'단어장 이름을 변경했습니다.'
+    }
 
 @router.get('/csv/{vocabulary_id}')
 async def csv(vocabulary_id:int = Path(title='단어장의 아이디', gt=0)):

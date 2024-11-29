@@ -1,6 +1,5 @@
 from sqlmodel import Field, SQLModel
 
-
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name:str = Field(default=None)
@@ -14,8 +13,9 @@ class AlreadyKnow(SQLModel, table=True):
 class VocabularyList(SQLModel, table=True):
     id:int|None = Field(default=None,primary_key=True)
     user_id:int = Field(default=None, foreign_key='user.id')
-    script:str = Field(default=None)
-    file_name:str = Field(default=None)
+    script_url:str = Field(default=None)
+    file_url:str = Field(default=None)
+    vocabulary_name:str = Field(default=None)
     
 class WaitingResult(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
