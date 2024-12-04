@@ -21,12 +21,12 @@ async def japan(file: UploadFile, user_id: int):
         
 async def save(body: types.SaveBody, user_name: str):
     with Session(connection.engine) as session:
-        for word in body.knownWordList:
+        for word in body.known_word_list:
             new_word = models.AlreadyKnow(user_id=1, word=word)
             session.add(new_word)
         session.commit()
         
-    translated = translate_word.translate_word(body.wordList) 
+    translated = translate_word.translate_word(body.word_list) 
     with TemporaryFile('w+t', encoding='utf-8') as fp:
         for key,value in translated.items():
             fp.write(f'{key},{value}\n')
@@ -58,3 +58,15 @@ async def update_list_name(list_id:int, name: str):
         session.commit()
         session.refresh(voca_list)
 
+async def append_known(user_id:int, word:str):
+    with Session(connection.engine) as session:
+        new_known = models.AlreadyKnow(user_id=user_id, word=word)
+        session.add(new_known)
+        session.commit()
+    
+async def known_list(user_id:int):
+    with Session(connection.engine) as session:
+        statement = select(models.AlreadyKnow).where(models.AlreadyKnow.user_id == user_id)
+        alreadyKnows = session.exec(statement).all()
+        
+    return alreadyKnows

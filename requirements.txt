@@ -11,3 +11,7 @@ cryptography
 google-cloud-storage
 google-cloud-speech
 translate
+python-dotenv
+google-auth
+httpx
+pyjwt
