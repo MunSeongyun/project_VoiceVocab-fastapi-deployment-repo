@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pydantic
+pydub
+spacy
+python-multipart
+boto3
+sqlmodel
+pymysql
+cryptography
+google-cloud-storage
+google-cloud-speech
+translate
+python-dotenv
+google-auth
+httpx
+pyjwt
