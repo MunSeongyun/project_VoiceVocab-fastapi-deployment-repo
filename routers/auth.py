@@ -63,15 +63,6 @@ async def callback(code: str):
             samesite='none', 
             max_age=3600,
             expires=3600
-            key
-value
-max_age
-expires
-path
-domain
-secure
-httponly
-samesite
         )
         return res
     except ValueError as e:

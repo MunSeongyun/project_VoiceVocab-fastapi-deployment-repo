@@ -1,8 +1,12 @@
 FROM python:3.12.7
 
+WORKDIR /
+
+RUN mkdir credential
 WORKDIR /app
 
 COPY ./requirements.txt requirements.txt 
+
 
 RUN apt-get -y update
 RUN apt-get -y upgrade
