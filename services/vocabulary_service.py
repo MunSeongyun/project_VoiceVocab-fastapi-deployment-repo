@@ -5,7 +5,7 @@ from convert_translate_word import google_cloud
 from common import types
 from convert_translate_word import translate_word
 from tempfile import TemporaryFile
-
+from datetime import datetime as dt
 
 async def japan(file: UploadFile, user_id: int):
     voice_file_url, words, script = await google_cloud.speech_to_text(file,'ja-JP')
@@ -36,8 +36,10 @@ async def save(body: types.SaveBody, user_name: str, user_id: int):
         fp.write(body.script)
         txt_file_url, _ = google_cloud.upload_text_to_gcs(fp, user_name, '.txt')
     
+    current_time = dt.now().strftime('%Y/%m/%d,%H:%M:%S')
+    
     with Session(connection.engine) as session:
-        new_voca = models.VocabularyList(user_id=user_id, script_url=txt_file_url, file_url=csv_file_url, vocabulary_name=txt_file_url)
+        new_voca = models.VocabularyList(user_id=user_id, script_url=txt_file_url, file_url=csv_file_url, vocabulary_name=f'{user_name}-{current_time}')
         session.add(new_voca)
         session.commit()
         
