@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import vocabulary, auth
+from routers import vocabulary, auth, test
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,6 +20,7 @@ app.add_middleware(
 
 app.include_router(vocabulary.router)
 app.include_router(auth.router)
+app.include_router(test.router)
 @app.get('/')
 async def main():
     return {

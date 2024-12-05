@@ -1,4 +1,4 @@
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile, status
 from sqlmodel import Session, select  
 from DB import connection, models
 from convert_translate_word import google_cloud
@@ -19,10 +19,10 @@ async def japan(file: UploadFile, user_id: int):
     
     return voice_file_url, word_list, script
         
-async def save(body: types.SaveBody, user_name: str):
+async def save(body: types.SaveBody, user_name: str, user_id: int):
     with Session(connection.engine) as session:
         for word in body.known_word_list:
-            new_word = models.AlreadyKnow(user_id=1, word=word)
+            new_word = models.AlreadyKnow(user_id=user_id, word=word)
             session.add(new_word)
         session.commit()
         
@@ -37,7 +37,7 @@ async def save(body: types.SaveBody, user_name: str):
         txt_file_url, _ = google_cloud.upload_text_to_gcs(fp, user_name, '.txt')
     
     with Session(connection.engine) as session:
-        new_voca = models.VocabularyList(user_id=1, script_url=txt_file_url, file_url=csv_file_url, vocabulary_name=txt_file_url)
+        new_voca = models.VocabularyList(user_id=user_id, script_url=txt_file_url, file_url=csv_file_url, vocabulary_name=txt_file_url)
         session.add(new_voca)
         session.commit()
         
@@ -48,11 +48,16 @@ async def get_list(user_id:int):
         
     return voca_list
 
-async def update_list_name(list_id:int, name: str):
+async def update_list_name(list_id:int, name: str, user_id:str):
     with Session(connection.engine) as session:
         statement = select(models.VocabularyList).where(models.VocabularyList.id == list_id)
         results = session.exec(statement)
         voca_list = results.one()
+        if voca_list.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to access this resource"
+            )
         voca_list.vocabulary_name = name
         session.add(voca_list)
         session.commit()

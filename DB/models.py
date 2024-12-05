@@ -7,6 +7,7 @@ class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name:str = Field(default=None)
     google_id:str = Field(default=None)
+    email:str = Field(default=None)
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True
