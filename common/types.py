@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
