@@ -4,7 +4,9 @@ from sqlmodel import Session, select
 from DB import connection, models
 import jwt
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 async def find_or_create_user_by_google(payload:Dict[str,str|int|bool]):
