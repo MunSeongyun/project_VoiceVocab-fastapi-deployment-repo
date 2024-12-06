@@ -25,8 +25,7 @@ class AlreadyKnow(SQLModel, table=True):
 class VocabularyList(SQLModel, table=True):
     id:int|None = Field(default=None,primary_key=True)
     user_id:int = Field(default=None, foreign_key='user.id')
-    script_url:str = Field(default=None)
-    file_url:str = Field(default=None)
+    file_name:str = Field(default=None)
     vocabulary_name:str = Field(default=None)
     model_config = ConfigDict(
         alias_generator=to_camel,

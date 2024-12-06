@@ -48,11 +48,16 @@ def upload_wav_to_gcs(file: UploadFile):
     file_uri = f'gs://{BUCKET_NAME}/{file.filename}'
     return file_url, file_uri
 
-def upload_text_to_gcs(file: TextIOWrapper, user_name:str, type:str):
+def upload_text_to_gcs(file: TextIOWrapper,file_name:str, type:str):
     file.seek(0)
-    current_time = datetime.now().strftime("%Y-%m-%d%H:%M:%S")
-    blob = bucket.blob(user_name + current_time+type)
+    blob = bucket.blob(file_name+type)
     blob.upload_from_file(file)
-    file_url = f'https://storage.cloud.google.com/{BUCKET_NAME}/{user_name + current_time + type}'
-    file_uri = f'gs://{BUCKET_NAME}/{user_name + current_time + type}'
+    file_url = f'https://storage.cloud.google.com/{BUCKET_NAME}/{file_name + type}'
+    file_uri = f'gs://{BUCKET_NAME}/{file_name + type}'
     return file_url, file_uri
+
+def download_csv_or_txt_from_gcs(file_name:str):
+    blob = bucket.blob(file_name)
+    content = blob.download_as_text(encoding='utf-8')
+    return content
+    

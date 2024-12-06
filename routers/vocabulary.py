@@ -28,9 +28,11 @@ async def save(body: types.SaveBody, current_user : Dict = Depends(auth_service.
 
 @router.get('/list')
 async def list(current_user : Dict = Depends(auth_service.get_current_user)):
+    list_all = await vocabulary_service.get_list(int(current_user['sub']))
+    
     return {
         'message':'단어장 목록을 불러왔습니다.',
-        'data': await vocabulary_service.get_list(int(current_user['sub']))
+        'data': list_all
     }
 
 @router.put('/list/{list_id}')
@@ -52,4 +54,12 @@ async def known_list(current_user : Dict = Depends(auth_service.get_current_user
     return {
         'data': await vocabulary_service.known_list(int(current_user['sub'])),
         'message': '단어 목록을 불러왔습니다.'
+    }
+
+@router.get('/{target}/{vocabulary_id}')
+async def get_file(target:str = Path(title='script or voca'),vocabulary_id:int = Path(title='단어장의 아이디', gt=0), current_user : Dict = Depends(auth_service.get_current_user)):
+    data = await vocabulary_service.get_voca_or_script(vocabulary_id, int(current_user['sub']), target)
+    return {
+        'message':'단어장을 가져왔습니다.',
+        'data':data
     }
