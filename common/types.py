@@ -16,3 +16,12 @@ class UpdateListName(BaseModel):
 
 class AppendKnownWord(BaseModel):
     word:str
+    content:str
+    vocabulary_id:int
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True
+    )
+    
+class GenerateBody(BaseModel):
+    text:str
