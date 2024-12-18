@@ -17,6 +17,16 @@ async def generate(file: UploadFile = File(...),current_user : Dict = Depends(au
         'script': script
     }
 
+@router.post('/generate_to_text')
+async def generate_to_text(body:types.GenerateBody ,current_user : Dict = Depends(auth_service.get_current_user)):
+    word_list = await vocabulary_service.japan_text(body.text, user_id=int(current_user['sub']))
+    return {
+        'message':'단어 목록을 생성했습니다.',
+        'wordList': word_list,
+        'script': body.text
+    }
+    
+    
 @router.post('/save')
 async def save(body: types.SaveBody, current_user : Dict = Depends(auth_service.get_current_user)):
     
@@ -45,6 +55,7 @@ async def update_list_name(list_id:int = Path(title='단어장의 아이디', gt
 @router.post('/known')
 async def known(body:types.AppendKnownWord,current_user : Dict = Depends(auth_service.get_current_user)):
     await vocabulary_service.append_known(user_id=int(current_user['sub']), word=body.word)
+    vocabulary_service.update_csv(user_id=int(current_user['sub']), content=body.content, vocabulary_id=body.vocabulary_id)
     return {
         'message':'단어를 추가했습니다'
     }

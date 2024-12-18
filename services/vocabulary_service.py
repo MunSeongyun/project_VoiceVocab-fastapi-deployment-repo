@@ -8,7 +8,7 @@ from convert_translate_word import translate_word
 from tempfile import TemporaryFile
 from datetime import datetime as dt
 import requests
-
+from convert_translate_word import use_spacy
 async def japan(file: UploadFile, user_id: int):
     voice_file_url, words, script = await google_cloud.speech_to_text(file,'ja-JP')
     
@@ -45,6 +45,17 @@ async def save(body: types.SaveBody, user_name: str, user_id: int):
         new_voca = models.VocabularyList(user_id=user_id, file_name=file_name, vocabulary_name=f'{user_name}의{current_time}에 제작된 단어장')
         session.add(new_voca)
         session.commit()
+     
+async def japan_text(text:str, user_id=int):
+    words = await use_spacy.convert(text=text,language_code='ja-JP')
+    
+    with Session(connection.engine) as session:
+        statement = select(models.AlreadyKnow).where(models.AlreadyKnow.user_id == user_id)
+        alreadyKnows = session.exec(statement).all()
+        
+    setWord = set([i.word for i in alreadyKnows])
+    word_list = words - setWord
+    return word_list
         
 async def get_list(user_id:int):
     with Session(connection.engine) as session:
@@ -125,3 +136,19 @@ async def get_voca_or_script(vocabulary_id:int, user_id:int, target:str):
     
     return google_cloud.download_csv_or_txt_from_gcs(file_name)
     
+    
+def update_csv(user_id:int, content:str,vocabulary_id:int):
+    with Session(connection.engine) as session:
+        statement = select(models.VocabularyList).where(models.VocabularyList.id == vocabulary_id)
+        voca = session.exec(statement).first()
+    if not voca:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='not found'
+        )
+    if voca.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='You do not have permission to access this resource'
+        )
+    return google_cloud.update_csv(content,voca.file_name)

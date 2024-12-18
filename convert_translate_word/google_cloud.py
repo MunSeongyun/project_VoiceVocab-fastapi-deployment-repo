@@ -1,4 +1,5 @@
 from io import TextIOWrapper
+from tempfile import TemporaryFile
 from dotenv import load_dotenv
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -40,6 +41,7 @@ async def speech_to_text(file: UploadFile,language_code:str):
     
     return voice_file_url, words, script
 
+
 def upload_wav_to_gcs(file: UploadFile):
     print(file.file)
     blob = bucket.blob(file.filename)
@@ -61,3 +63,13 @@ def download_csv_or_txt_from_gcs(file_name:str):
     content = blob.download_as_text(encoding='utf-8')
     return content
     
+def update_csv(content:str, file_name:str):
+    target = download_csv_or_txt_from_gcs(file_name+'.csv')
+    target = target.split('\n')
+    with TemporaryFile('w+t', encoding='utf-8') as fp:
+        for line in target:
+            if(line==content):
+                print('22222222222222222')
+                continue
+            fp.write(f'{line}\n')
+        upload_text_to_gcs(fp,file_name,'.csv')

@@ -7,5 +7,8 @@ async def convert(text:str, language_code:str):
     
     doc = nlp(text)
     pos = ['ADJ', 'ADV', 'NOUN', 'PROPN', 'VERB']
-    words = [token.lemma_ for token in doc if token.pos_ in pos]
+    punctuation = ['!', '.', ',', '?', '、', '。', '！', '？']
+    
+    words = [token.lemma_ for token in doc if token.pos_ in pos and token.text not in punctuation]
+
     return set(words)
