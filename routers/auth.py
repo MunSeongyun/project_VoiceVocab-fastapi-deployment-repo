@@ -68,7 +68,7 @@ async def callback(code: str):
         
         jwt_token = jwt.encode(payload=payload, key=JWT_SECRET_KEY, algorithm="HS256")
     
-        res = RedirectResponse(url=r'http://action-practice-bapull.s3-website.ap-northeast-2.amazonaws.com/')
+        res = RedirectResponse(url=FRONTEND_URL)
         res.set_cookie(
             key='auth_token', 
             value=jwt_token,  

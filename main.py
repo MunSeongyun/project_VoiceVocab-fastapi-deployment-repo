@@ -7,8 +7,7 @@ app = FastAPI()
 origins = [
     'http://localhost:5173',
     'http://localhost:8080',
-    'http://localhost',
-    'http://action-practice-bapull.s3-website.ap-northeast-2.amazonaws.com/'
+    'http://localhost'
 ]
 
 app.add_middleware(
