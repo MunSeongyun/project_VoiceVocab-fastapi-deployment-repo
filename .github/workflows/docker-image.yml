@@ -1,0 +1,64 @@
+name: Deploy FastAPI to EC2
+
+on:
+  push:
+    branches: [ "test/deploy", "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build Docker image
+      run: |
+        docker build -t fastapi .
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image to DockerHub
+      run: |
+        docker tag fastapi ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+
+    - name: SSH to EC2 and deploy
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+          docker stop fastapi || true
+          docker rm fastapi || true
+          docker run -d -p 80:80 --name fastapi \
+          -e KEY_PATH=${{ secrets.KEY_PATH }} \
+          -e BUCKET_NAME=${{ secrets.BUCKET_NAME }} \
+          -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
+          -e CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} \
+          -e REDIRECT_URL=${{ secrets.REDIRECT_URL }} \
+          -e FRONTEND_URL=${{ secrets.FRONTEND_URL }} \
+          -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+          -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -e DB_HOST=${{ secrets.DB_HOST }} \
+          ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
