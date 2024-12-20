@@ -1,6 +1,6 @@
 from io import TextIOWrapper
 from tempfile import TemporaryFile
-from dotenv import load_dotenv
+
 from google.cloud import storage
 from google.oauth2 import service_account
 from google.cloud import speech
@@ -9,7 +9,7 @@ from convert_translate_word import use_spacy
 from datetime import datetime
 import os
 
-load_dotenv()
+
 
 KEY_PATH = os.getenv('KEY_PATH')
 BUCKET_NAME = os.getenv('BUCKET_NAME')
