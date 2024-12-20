@@ -11,4 +11,4 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 RUN python -m spacy download ja_core_news_sm
 
 COPY ./ /app
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8080", "--timeout", "0"]
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80", "--timeout", "0"]
