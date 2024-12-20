@@ -61,4 +61,5 @@ jobs:
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           -e DB_HOST=${{ secrets.DB_HOST }} \
+          -v /home/${{ secrets.EC2_USER }}/credentials:/credential \
           ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
