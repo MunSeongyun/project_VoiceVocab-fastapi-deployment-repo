@@ -50,7 +50,7 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
           docker stop fastapi || true
           docker rm fastapi || true
-          docker run -d -p 80:80 --name fastapi \
+          docker run -d -p 8080:8080 --name fastapi \
           -e KEY_PATH=${{ secrets.KEY_PATH }} \
           -e BUCKET_NAME=${{ secrets.BUCKET_NAME }} \
           -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
@@ -61,4 +61,5 @@ jobs:
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           -e DB_HOST=${{ secrets.DB_HOST }} \
+          -v /home/${{ secrets.EC2_USER }}/credentials:/credential \
           ${{ secrets.DOCKER_USERNAME }}/fastapi:latest

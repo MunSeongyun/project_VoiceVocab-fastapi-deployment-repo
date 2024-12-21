@@ -1,5 +1,5 @@
 from typing import Dict
-from dotenv import load_dotenv
+
 from fastapi import APIRouter, Depends, Request, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from google.oauth2 import id_token
@@ -12,7 +12,7 @@ from services import auth_service
 
 router = APIRouter(prefix='/auth')
 
-load_dotenv()
+
 
 GOOGLE_CLIENT_ID = os.getenv("CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
