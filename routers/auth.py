@@ -75,7 +75,8 @@ async def callback(code: str):
             max_age=3600,
             expires=3600,
             httponly=True,
-            secure=True
+            secure=True,
+            samesite=None
         )
         return res
     except ValueError as e:
