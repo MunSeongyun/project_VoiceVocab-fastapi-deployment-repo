@@ -2,7 +2,7 @@ name: Deploy FastAPI to EC2
 
 on:
   push:
-    branches: [ "test/deploy", "main" ]
+    branches: [ "main" ]
 
 jobs:
 
