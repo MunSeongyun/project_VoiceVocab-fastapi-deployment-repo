@@ -7,7 +7,9 @@ app = FastAPI()
 origins = [
     'http://localhost:5173',
     'http://localhost:8080',
-    'http://localhost'
+    'http://localhost',
+    'https://www.bapull.store',
+    'https://www.voicevocab.store'
 ]
 
 app.add_middleware(
