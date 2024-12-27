@@ -9,6 +9,7 @@ import os
 
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
+# 유저를 google id 로 찾고 없으면 생성
 async def find_or_create_user_by_google(payload:Dict[str,str|int|bool]):
     with Session(connection.engine) as session:
         statement = select(models.User).where(models.User.google_id == payload['sub'])
@@ -17,6 +18,7 @@ async def find_or_create_user_by_google(payload:Dict[str,str|int|bool]):
         user = await create_user(payload)
     return user
     
+# 유저 생성
 async def create_user(payload:Dict[str,str|int|bool]):
     with Session(connection.engine) as session:
         new_user = models.User(name=payload['name'], google_id=payload['sub'], email=payload['email'])
@@ -25,6 +27,7 @@ async def create_user(payload:Dict[str,str|int|bool]):
         session.refresh(new_user)
     return new_user
     
+# JWT가 유효한지 확인인
 def verify_jwt_token(token: str):
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256'])
@@ -40,6 +43,7 @@ def verify_jwt_token(token: str):
             detail="Invalid token"
         )
 
+# 요청에서 토큰을 찾아서 verify_jwt_token 호출
 def get_current_user(request: Request):
     token = request.cookies.get('auth_token')
     if not token:
