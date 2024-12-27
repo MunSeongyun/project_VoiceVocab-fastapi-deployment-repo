@@ -6,6 +6,7 @@ class SaveBody(BaseModel):
     script: str
     word_list: List[str]
     known_word_list: List[str]
+    language: str
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True

@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from routers import vocabulary, auth, test
 from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
+from common import data_for_swagger
+app = FastAPI(
+    title='VoiceVocab',
+    openapi_tags=data_for_swagger.tags_metadata
+)
 
 origins = [
     'http://localhost:5173',
