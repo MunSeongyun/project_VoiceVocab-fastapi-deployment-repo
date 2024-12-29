@@ -13,7 +13,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    - name: List files after checkout
+      run: |
+        ls -la
+        if [ -f "main.py" ]; then
+          echo "main.py found!"
+          cat main.py
+        else
+          echo "main.py not found!"
+        exit 1
+        fi
     - name: Build Docker image
       run: |
         docker build --build-arg CACHE_BUSTER=$(date +%s) -t fastapi .
