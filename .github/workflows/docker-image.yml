@@ -27,7 +27,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t fastapi .
+        docker build --build-arg CACHE_BUSTER=$(date +%s) -t fastapi .
 
     - name: Login to DockerHub
       uses: docker/login-action@v2
