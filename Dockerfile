@@ -15,6 +15,6 @@ RUN python -m spacy download en
 ARG CACHE_BUSTER=1
 ENV CACHE_BUSTER=${CACHE_BUSTER}
 COPY ./ /app
-RUN ls
+RUN cat main.py
 
 CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8080", "--timeout", "0"]
