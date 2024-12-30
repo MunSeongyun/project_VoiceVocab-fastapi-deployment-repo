@@ -29,5 +29,5 @@ app.include_router(test.router)
 @app.get('/')
 async def main():
     return {
-        'message':'Voice Vocabulary'
+        'message':'Voice Vocabulary API'
     }
