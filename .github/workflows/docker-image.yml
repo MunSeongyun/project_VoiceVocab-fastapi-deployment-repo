@@ -36,7 +36,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         script: |
-          docker pull --no-cache ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
           docker stop fastapi || true
           docker rm fastapi || true
           docker run -d -p 8080:8080 --name fastapi \

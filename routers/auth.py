@@ -82,7 +82,7 @@ async def callback(code: str):
             httponly=True,
             secure=True,
             samesite=None,
-            domain='.voicevocab.com'
+            domain='.voicevocab.store'
         )
         return res
     except ValueError as e:
