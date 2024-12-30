@@ -2,7 +2,7 @@ name: Deploy FastAPI to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "fix/dockerfile" ]
 
 jobs:
 
@@ -16,7 +16,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build --build-arg CACHE_BUSTER=$(date +%s) -t fastapi .
+        docker build -t fastapi .
 
     - name: Login to DockerHub
       uses: docker/login-action@v2
@@ -26,8 +26,8 @@ jobs:
 
     - name: Push Docker image to DockerHub
       run: |
-        docker tag fastapi ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+        docker tag fastapi ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
 
     - name: SSH to EC2 and deploy
       uses: appleboy/ssh-action@v0.1.7
@@ -36,7 +36,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         script: |
-          docker pull --no-cache ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+          docker pull --no-cache ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
           docker stop fastapi || true
           docker rm fastapi || true
           docker run -d -p 8080:8080 --name fastapi \
@@ -51,4 +51,4 @@ jobs:
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           -e DB_HOST=${{ secrets.DB_HOST }} \
           -v /home/${{ secrets.EC2_USER }}/credentials:/credential \
-          ${{ secrets.DOCKER_USERNAME }}/fastapi:latest
+          ${{ secrets.DOCKER_USERNAME }}/fastapi:${{ github.sha }}
